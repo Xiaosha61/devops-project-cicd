@@ -7,7 +7,8 @@ The purpose of this project is specified in [ProjectIntroduction](./ProjectIntro
 
 # Project Evaluation Items
 ## Screenshots
-
+1. back-end build failed: ![SCREENSHOT01](screenshots/SCREENSHOT01.png)
+2. back-end test failed: ![SCREENSHOT02](screenshots/SCREENSHOT02.png)
 ## Urls
 
 
