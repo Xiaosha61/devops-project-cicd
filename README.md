@@ -11,7 +11,7 @@ The purpose of this project is specified in [ProjectIntroduction](./ProjectIntro
 2. back-end test failed: ![SCREENSHOT02](screenshots/SCREENSHOT02.png)
 3. back-end scan failed: ![SCREENSHOT03](screenshots/SCREENSHOT03.png)
 4. slack notification: ![SCREENSHOT04](screenshots/SCREENSHOT04.png)
-5. back-end scan failed: ![SCREENSHOT05](screenshots/SCREENSHOT05.png)
+5. deploy-infrastructure failed: ![SCREENSHOT05](screenshots/SCREENSHOT05.png)
 6. back-end scan failed: ![SCREENSHOT06](screenshots/SCREENSHOT06.png)
 7. back-end scan failed: ![SCREENSHOT07](screenshots/SCREENSHOT07.png)
 8. back-end scan failed: ![SCREENSHOT08](screenshots/SCREENSHOT08.png)
