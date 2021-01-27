@@ -1,6 +1,6 @@
 ---
 
-- name: "configuration play." 
+- name: "Configure a web server for UdaPeople" 
   hosts: web
   user: ubuntu
   gather_facts: false

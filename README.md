@@ -20,6 +20,7 @@ The purpose of this project is specified in [ProjectIntroduction](./ProjectIntro
 
 ## Urls
 Public Url to GitHub repository (not private) [URL01]
+https://github.com/Xiaosha61/devops-project-cicd
 
 Public URL for your S3 Bucket (aka, your green candidate front-end) [URL02]
 
