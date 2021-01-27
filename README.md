@@ -14,7 +14,7 @@ The purpose of this project is specified in [ProjectIntroduction](./ProjectIntro
 7. Successful rollback after a failed smoke test. ![SCREENSHOT07](screenshots/SCREENSHOT07.png)
 8. Successful promotion job. ![SCREENSHOT08](screenshots/SCREENSHOT08.png)
 9.  Successful cleanup job ![SCREENSHOT09](screenshots/SCREENSHOT09.png)
-10. Only deploy on pushed to `master` branch: ![SCREENSHOT10](screenshots/SCREENSHOT10.png)
+10. Only deploy on pushed to `main` branch: ![SCREENSHOT10](screenshots/SCREENSHOT10.png)
 11. a graph of your EC2 instance including available memory, available disk space, and CPU usage. ![SCREENSHOT11](screenshots/SCREENSHOT11.png)
 12. an alert that was sent by Prometheus: ![SCREENSHOT12](screenshots/SCREENSHOT12.png)
 
