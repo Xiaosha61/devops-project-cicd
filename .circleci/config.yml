@@ -339,14 +339,14 @@ jobs:
             curl -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request GET https://api.memstash.io/values/backend_ec2_ip
             export API_URL="http://${BACKEND_EC2_IP}:3030" # this is used by webpack
             echo "${API_URL}"
-            npm i
+            npm install
             npm run build
       - run:
           name: Deploy frontend objects
           working_directory: ./frontend
           command: |
-            aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
             echo s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
+            aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
       - persist_to_workspace:
           root: .
           paths:
@@ -398,7 +398,7 @@ jobs:
   smoke-test:
     docker:
       # Lightweight Docker image 
-      - image: alpine:latest 
+      - image: python:3.9.0-alpine
     steps:
       # Checkout code from git
       - checkout
