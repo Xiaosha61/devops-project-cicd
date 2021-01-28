@@ -216,7 +216,7 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text)
-            curl -H "Content-Type: text/plain" -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request PUT --data "$BACKEND_EC2_IP" https://api.memstash.io/values/backend_ip
+            curl -H "Content-Type: text/plain" -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request PUT --data "$BACKEND_EC2_IP" https://api.memstash.io/values/backend_ec2_ip
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -252,7 +252,7 @@ jobs:
       # Add ssh keys with fingerprint
       - add_ssh_keys: # add the private key to the host that runs the job
           fingerprints: ["b5:b0:b9:a9:b1:f7:bd:66:c9:a6:5b:0b:6f:f9:f9:12"] # You can get this ID in the section where you registered the SSH Key
-      # attach workspace to use .txt file
+      # attach workspace to use inventory.txt file
       - attach_workspace:
           at: .
       - run:
@@ -282,14 +282,14 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      # - run:
-      #     name: Install AWS CLI dependencies
-      #     working_directory: /tmp
-      #     command: |
-      #       sudo apt-get update && sudo apt-get install -yy less
-      #       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-      #       unzip awscliv2.zip
-      #       sudo ./aws/install
+      - run:
+          name: Install AWS CLI dependencies
+          working_directory: /tmp
+          command: |
+            sudo apt-get update && sudo apt-get install -yy less
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Run migrations
           command: |
@@ -297,22 +297,22 @@ jobs:
             ls
             pwd
             npm run migrations > migration_status
-      # - run:
-      #     name: Send migration results to memstash
-      #     command: |
-      #       pwd
-      #       if grep -q "has been executed successfully" migration_status
-      #       then
-      #         echo "DB migration was successful, will update memstash..."
-      #         curl -H "Content-Type: text/plain" -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request PUT --data "success" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
-      #       else
-      #         echo "DB migration failed, please verify setup! Probably the database already exists. Verify setup!"
-      #         curl -H "Content-Type: text/plain" -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request PUT --data "failure" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
-      #       fi
-      #       echo "WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}"
-      # - destroy-environment:
-      #     id: ${CIRCLE_WORKFLOW_ID:0:7}
-      #     when: on_fail
+      - run:
+          name: Send migration results to memstash
+          command: |
+            pwd
+            if grep -q "has been executed successfully" migration_status
+            then
+              echo "DB migration was successful, will update memstash..."
+              curl -H "Content-Type: text/plain" -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request PUT --data "success" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
+            else
+              echo "DB migration failed, please verify setup! Probably the database already exists. Verify setup!"
+              curl -H "Content-Type: text/plain" -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request PUT --data "failure" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
+            fi
+            echo "WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
 
   deploy-frontend:
     docker:
@@ -336,7 +336,7 @@ jobs:
           name: Get backend url and build front end
           working_directory: ./frontend
           command: |
-            curl -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request GET https://api.memstash.io/values/backend_ip
+            curl -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request GET https://api.memstash.io/values/backend_ec2_ip
             export API_URL="http://${BACKEND_EC2_IP}:3030" # this is used by webpack
             echo "${API_URL}"
             npm i
@@ -385,6 +385,7 @@ jobs:
           name: Deploy backend
           command: |
             cd ./.circleci/ansible
+            export ANSIBLE_HOST_KEY_CHECKING=false # skip known-hosts checking
             ansible-playbook -i inventory.txt deploy-backend.yml -vv
       # Here's where you will add some code to rollback on failure  
       - destroy-environment:
@@ -410,19 +411,17 @@ jobs:
             apk add --update curl nodejs npm
             pip install awscli
       - run:
-          name: Get backend url
-          command: |
-            export BACKEND_EC2_IP=$(curl -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request GET https://api.memstash.io/values/backend_ip)
-            export BACKEND_URL="http://${BACKEND_EC2_IP}:3030"
-      - run:
           name: Backend smoke test.
           command: |
-            curl "$BACKEND_URL/api/status"
+            export BACKEND_EC2_IP=$(curl -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request GET https://api.memstash.io/values/backend_ec2_ip)
+            export BACKEND_EC2_URL="http://${BACKEND_EC2_IP}:3030"
+            curl "$BACKEND_EC2_URL/api/status"
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.eu-central-1.amazonaws.com/index.html"
+            URL="http://${S3_BUCKET_URL}/index.html"
             curl -s ${URL} | grep -q "Welcome"
+            # make it fail on purpose
             if curl -s ${URL} | grep "Welcome"
             then
             return 1
@@ -473,7 +472,6 @@ jobs:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
 
-
   cleanup:
     docker:
       # Docker image here
@@ -501,7 +499,7 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build-frontend
+      - build-frontend
       - build-backend
       # - test-frontend:
       #     requires: [build-frontend]
@@ -511,16 +509,16 @@ workflows:
       #     requires: [build-backend]
       # - scan-frontend:
       #     requires: [build-frontend]
-      # - deploy-infrastructure:
+      - deploy-infrastructure:
+          requires: [build-frontend, build-backend]
           # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: [main]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+          filters:
+            branches:
+              only: [main]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       - run-migrations:
-          requires: [build-backend]
-          # requires: [configure-infrastructure]
+          requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
       - deploy-backend:
