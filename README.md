@@ -16,6 +16,7 @@ See [presentation.pdf](./presentation.pdf) in the project root folder.
 - Public URLs to deployed application back-end in EC2 [URL04]
 
 - Public URL to your Prometheus Server [URL05]
+  - http://54.245.202.29:9090/
 
 ## Screenshots
 1. back-end build failed: ![SCREENSHOT01](screenshots/SCREENSHOT01.png)
