@@ -1,5 +1,5 @@
 # Introduction
-The purpose of this project is specified in [ProjectIntroduction](./ProjectIntroduction.md).
+The purpose of this project is specified in [Project Introduction](./ProjectIntroduction.md).
 
 # Project Submission Items
 ## Presentation
@@ -10,10 +10,14 @@ See [presentation.pdf](./presentation.pdf) in the project root folder.
   - https://github.com/Xiaosha61/devops-project-cicd
 
 - Public URL for your S3 Bucket (aka, your green candidate front-end) [URL02]
+  - https://udapeople-bff4b70.s3-us-west-2.amazonaws.com/index.html
 
 - Public URL for your CloudFront distribution (aka, your blue production front-end) [URL03]
+  - d1k1q3ebynw1r6.cloudfront.net
 
 - Public URLs to deployed application back-end in EC2 [URL04]
+  - ec2-54-190-47-159.us-west-2.compute.amazonaws.com
+  - http://ec2-54-190-47-159.us-west-2.compute.amazonaws.com:9100/metrics
 
 - Public URL to your Prometheus Server [URL05]
   - http://54.245.202.29:9090/
@@ -32,9 +36,6 @@ See [presentation.pdf](./presentation.pdf) in the project root folder.
 9.  Successful cleanup job ![SCREENSHOT09](screenshots/SCREENSHOT09.png)
 10. Only deploy on pushed to `main` branch: ![SCREENSHOT10](screenshots/SCREENSHOT10.png)
 11. a graph of your EC2 instance including available memory, available disk space, and CPU usage. ![SCREENSHOT11](screenshots/SCREENSHOT11.png)
+    1. The screenshot is not big enough, there is a pdf file in screenshots folder named [SCREENSHOT11.pdf](screenshots/SCREENSHOT11.pdf)
 12. an alert that was sent by Prometheus: ![SCREENSHOT12](screenshots/SCREENSHOT12.png)
-
-# Build Steps
-
-
 
