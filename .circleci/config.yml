@@ -72,7 +72,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build-1
-      - persist_to_workspace:
+      - persist_to_workspace: # one of save_cache and persist_to_workspace should be enough
           root: .
           paths:
             - frontend/node_modules
@@ -212,11 +212,11 @@ jobs:
       - run:
           name: Save the new back-end url
           command: |
-            BACKEND_IP=$(aws ec2 describe-instances \
+            BACKEND_EC2_IP=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text)
-            curl -H "Content-Type: text/plain" -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request PUT --data "$BACKEND_IP" https://api.memstash.io/values/backend_ip
+            curl -H "Content-Type: text/plain" -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request PUT --data "$BACKEND_EC2_IP" https://api.memstash.io/values/backend_ip
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -282,35 +282,37 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - run:
-          name: Install AWS CLI dependencies
-          working_directory: /tmp
-          command: |
-            sudo apt-get update && sudo apt-get install -yy less
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
+      # - run:
+      #     name: Install AWS CLI dependencies
+      #     working_directory: /tmp
+      #     command: |
+      #       sudo apt-get update && sudo apt-get install -yy less
+      #       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+      #       unzip awscliv2.zip
+      #       sudo ./aws/install
       - run:
           name: Run migrations
           command: |
             cd ./backend
-            npm run migrations > migration_status
-      - run:
-          name: Send migration results to memstash
-          command: |
+            ls
             pwd
-            if grep -q "has been executed successfully" migration_status
-            then
-              echo "DB migration was successful, will update memstash..."
-              curl -H "Content-Type: text/plain" -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request PUT --data "success" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
-            else
-              echo "DB migration failed, please verify setup! Probably the database already exists. Verify setup!"
-              curl -H "Content-Type: text/plain" -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request PUT --data "failure" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
-            fi
-            echo "WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail
+            npm run migrations > migration_status
+      # - run:
+      #     name: Send migration results to memstash
+      #     command: |
+      #       pwd
+      #       if grep -q "has been executed successfully" migration_status
+      #       then
+      #         echo "DB migration was successful, will update memstash..."
+      #         curl -H "Content-Type: text/plain" -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request PUT --data "success" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
+      #       else
+      #         echo "DB migration failed, please verify setup! Probably the database already exists. Verify setup!"
+      #         curl -H "Content-Type: text/plain" -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request PUT --data "failure" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
+      #       fi
+      #       echo "WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}"
+      # - destroy-environment:
+      #     id: ${CIRCLE_WORKFLOW_ID:0:7}
+      #     when: on_fail
 
   deploy-frontend:
     docker:
@@ -335,8 +337,9 @@ jobs:
           working_directory: ./frontend
           command: |
             curl -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request GET https://api.memstash.io/values/backend_ip
-            export API_URL="http://${BACKEND_IP}:3030" # this is used by webpack
+            export API_URL="http://${BACKEND_EC2_IP}:3030" # this is used by webpack
             echo "${API_URL}"
+            npm i
             npm run build
       - run:
           name: Deploy frontend objects
@@ -409,8 +412,8 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(curl -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request GET https://api.memstash.io/values/backend_ip)
-            export BACKEND_URL="http://${BACKEND_IP}:3030"
+            export BACKEND_EC2_IP=$(curl -H "token: 0cb5e8ce-7c45-4db3-84e4-d260771749fb" --request GET https://api.memstash.io/values/backend_ip)
+            export BACKEND_URL="http://${BACKEND_EC2_IP}:3030"
       - run:
           name: Backend smoke test.
           command: |
@@ -498,25 +501,26 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
+      # - build-frontend
       - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - deploy-infrastructure:
           # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [main]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
+      #     filters:
+      #       branches:
+      #         only: [main]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
       - run-migrations:
-          requires: [configure-infrastructure]
+          requires: [build-backend]
+          # requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
       - deploy-backend:
