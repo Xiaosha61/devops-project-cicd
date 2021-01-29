@@ -10,7 +10,7 @@ See [presentation.pdf](./presentation.pdf) in the project root folder.
   - https://github.com/Xiaosha61/devops-project-cicd
 
 - Public URL for your S3 Bucket (aka, your green candidate front-end) [URL02]
-  - https://udapeople-bff4b70.s3-us-west-2.amazonaws.com/index.html
+  - http://udapeople-bff4b70.s3-us-west-2.amazonaws.com/index.html
 
 - Public URL for your CloudFront distribution (aka, your blue production front-end) [URL03]
   - d1k1q3ebynw1r6.cloudfront.net
