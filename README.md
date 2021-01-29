@@ -20,7 +20,8 @@ See [presentation.pdf](./presentation.pdf) in the project root folder.
   - http://ec2-54-190-47-159.us-west-2.compute.amazonaws.com:9100/metrics
 
 - Public URL to your Prometheus Server [URL05]
-  - http://54.245.202.29:9090/
+  - http://ec2-54-245-202-29.us-west-2.compute.amazonaws.com:9090
+  - http://ec2-54-245-202-29.us-west-2.compute.amazonaws.com:9090/graph?g0.expr=go_memstats_gc_cpu_fraction&g0.tab=0&g0.stacked=0&g0.range_input=12h&g1.expr=go_memstats_alloc_bytes&g1.tab=0&g1.stacked=0&g1.range_input=1h&g2.expr=node_disk_io_now&g2.tab=0&g2.stacked=0&g2.range_input=1h
 
 ## Screenshots
 1. back-end build failed: ![SCREENSHOT01](screenshots/SCREENSHOT01.png)
